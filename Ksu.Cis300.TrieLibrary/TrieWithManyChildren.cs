@@ -12,7 +12,7 @@ namespace Ksu.Cis300.TrieLibrary
     /// <summary>
     /// A node of a trie for storing strings made up of lower-case English letters.
     /// </summary>
-    public class Trie
+    public class TrieWithManyChildren : ITrie
     {
         /// <summary>
         /// Indicates whether the trie rooted at this node contains the empty string.
@@ -22,7 +22,7 @@ namespace Ksu.Cis300.TrieLibrary
         /// <summary>
         /// The children of this node.
         /// </summary>
-        private Trie[] _children = new Trie[26];
+        private ITrie[] _children = new ITrie[26];
 
         /// <summary>
         /// Gets whether the trie rooted at this node contains the given string.
@@ -53,12 +53,14 @@ namespace Ksu.Cis300.TrieLibrary
         /// Adds the given string to the trie rooted at this node.
         /// </summary>
         /// <param name="s">The string to add.</param>
-        public void Add(string s)
+        public ITrie Add(string s)
         {
             if (s == "")
             {
                 _hasEmptyString = true;
+                
             }
+           
             else if (s[0] < 'a' || s[0] > 'z')
             {
                 throw new ArgumentException();
@@ -68,10 +70,24 @@ namespace Ksu.Cis300.TrieLibrary
                 int loc = s[0] - 'a';
                 if (_children[loc] == null)
                 {
-                    _children[loc] = new Trie();
+                    _children[loc] = new TrieWithNoChildren();
                 }
-                _children[loc].Add(s.Substring(1));
+                _children[loc] = _children[loc].Add(s.Substring(1));
+
             }
+            return this;
         }
+        public TrieWithManyChildren(string s, bool hasEmpty, char childLabel, ITrie child)
+        {
+            if (childLabel < 'a' || childLabel > 'z')
+            {
+                throw new ArgumentException();
+            }
+            _hasEmptyString = hasEmpty;
+            _children[childLabel - 'a'] = child;
+            Add(s);
+        }
+
+
     }
 }
